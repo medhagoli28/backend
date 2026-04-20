@@ -1,67 +1,87 @@
 const express = require('express');
 const app = express();
 
-// Middleware to parse JSON bodies
 app.use(express.json());
 
-// In-memory "database"
-let todos = [
-  { id: 1, text: 'Learn backend', done: false },
-  { id: 2, text: 'Play with Postman', done: false },
-  //Add more
+// 1. About info
+const about = {
+  name: 'Medha',
+  major: 'Computer Science',
+  year: '2029',
+  hometown: 'Kansas City'
+};
+
+// 2. Projects / experiences
+let projects = [
+  {
+    title: 'USC Neuro Imaging Lab Research',
+    description: 'Worked remotely on research involving EEG and imaging data analysis, including cleaning, processing, and visualizing data.',
+    tech: ['R', 'Data Analysis', 'Visualization']
+  },
+  {
+    title: 'Personal Tutoring Service',
+    description: 'Created customized lesson plans for students in competitive math and test prep based on their goals and learning styles.',
+    tech: ['Teaching', 'Curriculum Design', 'Communication']
+  },
+  {
+    title: 'Startland Social Change Internship',
+    description: 'Helped plan and support a social impact initiative focused on access, financial literacy, and community problem-solving.',
+    tech: ['Research', 'Planning', 'Communication']
+  }
 ];
 
-// GET /todos - get all todos
-app.get('/todos', (req, res) => {
-  res.json(todos);
+// 3. Creative endpoint
+const favorites = {
+  favoriteSport: 'Tennis',
+  favoriteSubject: 'Math',
+  favoriteInterest: 'Data analysis',
+  favoriteFocus: 'Problem solving'
+};
+
+// GET /api/about
+app.get('/api/about', (req, res) => {
+  res.json(about);
 });
 
-// POST /todos - create a new todo
-app.post('/todos', (req, res) => {
-  const { text } = req.body;
-  if (!text) {
-    return res.status(400).json({ error: 'text is required' });
+// GET /api/projects
+app.get('/api/projects', (req, res) => {
+  res.json(projects);
+});
+
+// POST /api/projects
+app.post('/api/projects', (req, res) => {
+  const { title, description, tech } = req.body;
+
+  if (!title || !description || !tech) {
+    return res.status(400).json({
+      error: 'title, description, and tech are required'
+    });
   }
 
-  const newTodo = {
-    id: todos.length + 1,
-    text,
-    done: false,
+  if (!Array.isArray(tech)) {
+    return res.status(400).json({
+      error: 'tech must be an array'
+    });
+  }
+
+  const newProject = {
+    title,
+    description,
+    tech
   };
 
-  todos.push(newTodo);
-  res.status(201).json(newTodo);
+  projects.push(newProject);
+  res.status(201).json(newProject);
 });
 
-// PATCH /todos/:id - mark a todo as done
-app.patch('/todos/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const todo = todos.find((t) => t.id === id);
-
-  if (!todo) {
-    return res.status(404).json({ error: 'Todo not found' });
-  }
-
-  todo.done = true;
-  res.json(todo);
+// Creative endpoint
+app.get('/api/favorites', (req, res) => {
+  res.json(favorites);
 });
 
-// DELETE /todos/:id - delete a todo
-app.delete('/todos/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const index = todos.findIndex((t) => t.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Todo not found' });
-  }
-
-  const deletedTodo = todos[index];
-  todos.splice(index, 1);
-
-  res.json({
-    message: 'Todo deleted successfully',
-    todo: deletedTodo
-  });
+// Home route
+app.get('/', (req, res) => {
+  res.send('Medha Mini Portfolio API is running!');
 });
 
 // Start server
